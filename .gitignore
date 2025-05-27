@@ -1,0 +1,21 @@
+# Ignore large file
+test-data/IpCounterTestLarge.txt
+
+# Ignore build outputs and IDE files
+*.class
+*.jar
+*.war
+*.iml
+.idea/
+.vscode/
+target/
+out/
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Ignore OS and editor system files
+.DS_Store
+*.swp
