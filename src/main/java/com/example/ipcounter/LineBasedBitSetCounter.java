@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.BitSet;
 
 public class LineBasedBitSetCounter implements IPAddressCounter {
-    private static final int BITSET_SIZE = 1 << 31;
+    private static final int BITSET_SIZE = Integer.MAX_VALUE;
 
     private BitSet bitSetPositive;
     private BitSet bitSetNegative;

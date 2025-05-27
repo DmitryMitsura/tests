@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.BitSet;
 
 public class ByteBasedBitSetCounter implements IPAddressCounter {
-    private static final int BITSET_SIZE = 1 << 31;
+    private static final int BITSET_SIZE = Integer.MAX_VALUE;
 
     private BitSet bitSetPositive;
     private BitSet bitSetNegative;
@@ -38,20 +38,7 @@ public class ByteBasedBitSetCounter implements IPAddressCounter {
                     byte b = buffer[i];
                     if (b == '\n' || b == '\r') {
                         if (lineBuilder.length() > 0) {
-                            String line = lineBuilder.toString();
-                            int ip = parseIp(line);
-                            if (ip >= 0) {
-                                if (!bitSetPositive.get(ip)) {
-                                    bitSetPositive.set(ip);
-                                    uniqueCount++;
-                                }
-                            } else {
-                                int idx = ip & 0x7FFFFFFF; // Clear sign bit for negative index
-                                if (!bitSetNegative.get(idx)) {
-                                    bitSetNegative.set(idx);
-                                    uniqueCount++;
-                                }
-                            }
+                            processLine(lineBuilder.toString());
                             lineBuilder.setLength(0);
                         }
                     } else {
@@ -66,23 +53,27 @@ public class ByteBasedBitSetCounter implements IPAddressCounter {
             }
 
             if (!residue.isEmpty()) {
-                int ip = parseIp(residue);
-                if (ip >= 0) {
-                    if (!bitSetPositive.get(ip)) {
-                        bitSetPositive.set(ip);
-                        uniqueCount++;
-                    }
-                } else {
-                    int idx = ip & 0x7FFFFFFF;
-                    if (!bitSetNegative.get(idx)) {
-                        bitSetNegative.set(idx);
-                        uniqueCount++;
-                    }
-                }
+                processLine(residue);
             }
         }
 
         return uniqueCount;
+    }
+
+    private void processLine(String line) {
+        int ip = parseIp(line);
+        if (ip >= 0) {
+            if (!bitSetPositive.get(ip)) {
+                bitSetPositive.set(ip);
+                uniqueCount++;
+            }
+        } else {
+            int idx = ip ^ 0xFFFFFFFF;
+            if (!bitSetNegative.get(idx)) {
+                bitSetNegative.set(idx);
+                uniqueCount++;
+            }
+        }
     }
 
     private int parseIp(String line) {
