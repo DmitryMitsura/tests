@@ -63,6 +63,7 @@ public class Main {
             System.out.println("Total time: " + TimeUtils.formatDuration(duration));
 
             System.out.println("Unique IP count: " + uniqueCount);
+            System.out.flush();
 
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid parameter: " + e.getMessage());
