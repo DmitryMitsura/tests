@@ -8,18 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class BufferedFileReaderShowProgress implements Closeable {
-    private static final int BUFFER_SIZE = 8 * 1024 * 1024;
-    private static final long PROGRESS_STEP_LINES = 100_000_000; // How often to display progress
 
     private InputStream inputStream;
     private byte[] buffer;
     private int bytesRead;
     private int fileSizeInMb;
     private int showCounter;
-
-    public BufferedFileReaderShowProgress(Path filePath) throws IOException {
-        this(filePath, BUFFER_SIZE);
-    }
 
     public BufferedFileReaderShowProgress(Path filePath, int bufferSize) throws IOException {
         this.inputStream = new BufferedInputStream(Files.newInputStream(filePath), bufferSize);
@@ -32,9 +26,11 @@ public class BufferedFileReaderShowProgress implements Closeable {
     public int readNextBlock() throws IOException {
         bytesRead = inputStream.read(buffer);
         showCounter++;
+        if(showCounter == 1)
+            System.out.printf("File size in Mb: %d%n", fileSizeInMb);
         if (showCounter % 50 == 0) {
             int megaBytesRead = showCounter * 8;
-            System.out.printf("Processed progress: %d Mb from %d Mb", megaBytesRead, fileSizeInMb);
+            System.out.printf("\rProcessed Mb: %d", megaBytesRead);
         }
 
         return bytesRead;

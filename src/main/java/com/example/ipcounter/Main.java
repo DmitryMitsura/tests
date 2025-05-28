@@ -12,22 +12,26 @@ import java.time.Instant;
 import java.util.Properties;
 
 public class Main {
+    public static int bufferSizeBytes = 8 * 1024 * 1024; // default
+
     public static void main(String[] args) {
         Properties config = new Properties();
         String algorithm;
         Path filePath;
 
-        // 1. Read configuration
+        // Read configuration
         try {
             config.load(Files.newBufferedReader(Path.of("config.properties")));
             algorithm = config.getProperty("algorithm", "linebitset");
             filePath = Path.of(config.getProperty("filePath"));
+            bufferSizeBytes = Integer.parseInt(config.getProperty("buffer.size.mb", "8")) * 1024 * 1024;
+
         } catch (IOException e) {
             System.err.println("Error reading configuration file: " + e.getMessage());
             return;
         }
 
-        // 2. Check file existence and readability
+        // Check file existence and readability
         try {
             if (!Files.exists(filePath)) {
                 throw new NoSuchFileException(filePath.toString());
@@ -40,7 +44,7 @@ public class Main {
             return;
         }
 
-        // 3. Count unique IPs,
+        // Count unique IPs,
         try {
             System.out.println("Algorithm: " + algorithm);
 

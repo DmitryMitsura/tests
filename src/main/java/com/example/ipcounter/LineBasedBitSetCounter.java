@@ -18,7 +18,7 @@ public class LineBasedBitSetCounter implements IPAddressCounter {
         bitSetPositive = new BitSet(BITSET_SIZE);
         bitSetNegative = new BitSet(BITSET_SIZE);
         uniqueCount = 0;
-        FileLineReader.readFileLines(filePath, this::processLine);
+        FileLineReader.readFileLines(filePath, Main.bufferSizeBytes, this::processLine);
         return uniqueCount;
     }
 

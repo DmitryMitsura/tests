@@ -8,18 +8,17 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 public class FileLineReaderShowProgress {
-    private static final int BUFFER_SIZE = 8 * 1024 * 1024; // 8 MB
     private static final int ESTIMATE_SAMPLE_SIZE = 1000; // Sample size for estimating avg line size
     private static final long PROGRESS_STEP_LINES = 100_000_000; // How often to display progress
 
-    public static void readFileLines(Path filePath, Consumer<String> lineProcessor) throws IOException {
+    public static void readFileLines(Path filePath, int bufferSize, Consumer<String> lineProcessor) throws IOException {
         long totalFileSize = Files.size(filePath);
         long bytesReadEstimate = 0;
         long lineCount = 0;
         long totalLineSize = 0;
         double avgLineSize = -1;
 
-        try (BufferedReader reader = new BufferedReader(Files.newBufferedReader(filePath, StandardCharsets.UTF_8), BUFFER_SIZE)) {
+        try (BufferedReader reader = new BufferedReader(Files.newBufferedReader(filePath, StandardCharsets.UTF_8), bufferSize)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 lineProcessor.accept(line);
