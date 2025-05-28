@@ -8,6 +8,7 @@ test-data/IpCounterTestExtra.txt
 *.iml
 .idea/
 .vscode/
+.gradle/
 target/
 out/
 

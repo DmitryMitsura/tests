@@ -46,7 +46,7 @@ public class Main {
 
         // Count unique IPs,
         try {
-            System.out.println("Algorithm: " + algorithm);
+            System.out.println("Algorithm: " + algorithm + ". Buffer size in Mb " + bufferSizeBytes);
 
             IPAddressCounter counter = switch (algorithm) {
                 case "linebitset" -> new LineBasedBitSetCounter();
@@ -68,6 +68,9 @@ public class Main {
 
             System.out.println("Unique IP count: " + uniqueCount);
             System.out.flush();
+
+            System.err.flush();
+            System.exit(0);
 
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid parameter: " + e.getMessage());
