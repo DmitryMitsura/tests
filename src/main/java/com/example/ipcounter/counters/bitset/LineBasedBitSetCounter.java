@@ -1,6 +1,8 @@
-package com.example.ipcounter;
+package com.example.ipcounter.counters.bitset;
 
-import com.example.ipcounter.util.FileLineReader;
+import com.example.ipcounter.Main;
+import com.example.ipcounter.counters.IPAddressCounter;
+import com.example.ipcounter.readers.line.FileLineReader;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,31 +13,22 @@ public class LineBasedBitSetCounter implements IPAddressCounter {
 
     private BitSet bitSetPositive;
     private BitSet bitSetNegative;
-    private long uniqueCount;
 
     @Override
     public long countUnique(Path filePath) throws IOException {
         bitSetPositive = new BitSet(BITSET_SIZE);
         bitSetNegative = new BitSet(BITSET_SIZE);
-        uniqueCount = 0;
         FileLineReader.readFileLines(filePath, Main.bufferSizeBytes, this::processLine);
-        return uniqueCount;
+        return bitSetPositive.cardinality() + bitSetNegative.cardinality();
     }
 
     private void processLine(String line) {
         try {
             int ipAsInt = parseIp(line.trim());
             if (ipAsInt < 0) {
-                int index = ipAsInt ^ 0xFFFFFFFF;
-                if (!bitSetNegative.get(index)) {
-                    bitSetNegative.set(index);
-                    uniqueCount++;
-                }
+                bitSetNegative.set(ipAsInt ^ 0xFFFFFFFF);
             } else {
-                if (!bitSetPositive.get(ipAsInt)) {
-                    bitSetPositive.set(ipAsInt);
-                    uniqueCount++;
-                }
+                bitSetPositive.set(ipAsInt);
             }
         } catch (NumberFormatException e) {
         }

@@ -1,6 +1,8 @@
-package com.example.ipcounter;
+package com.example.ipcounter.counters.memory;
 
-import com.example.ipcounter.util.BufferedFileReader;
+import com.example.ipcounter.Main;
+import com.example.ipcounter.counters.IPAddressCounter;
+import com.example.ipcounter.readers.buff.BufferedFileReader;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

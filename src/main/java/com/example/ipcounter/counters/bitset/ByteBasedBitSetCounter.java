@@ -1,6 +1,8 @@
-package com.example.ipcounter;
+package com.example.ipcounter.counters.bitset;
 
-import com.example.ipcounter.util.BufferedFileReader;
+import com.example.ipcounter.Main;
+import com.example.ipcounter.counters.IPAddressCounter;
+import com.example.ipcounter.readers.buff.BufferedFileReader;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,13 +13,11 @@ public class ByteBasedBitSetCounter implements IPAddressCounter {
 
     private BitSet bitSetPositive;
     private BitSet bitSetNegative;
-    private long uniqueCount;
 
     @Override
     public long countUnique(Path filePath) throws IOException {
         bitSetPositive = new BitSet(BITSET_SIZE);
         bitSetNegative = new BitSet(BITSET_SIZE);
-        uniqueCount = 0;
 
         try (BufferedFileReader reader = new BufferedFileReader(filePath, Main.bufferSizeBytes)) {
             byte[] buffer;
@@ -43,16 +43,10 @@ public class ByteBasedBitSetCounter implements IPAddressCounter {
                         if (octetCount == 3) {
                             ip = (ip << 8) | octet;
                             if (ip >= 0) {
-                                if (!bitSetPositive.get(ip)) {
-                                    bitSetPositive.set(ip);
-                                    uniqueCount++;
-                                }
+                                bitSetPositive.set(ip);
                             } else {
                                 int idx = ip ^ 0xFFFFFFFF;
-                                if (!bitSetNegative.get(idx)) {
-                                    bitSetNegative.set(idx);
-                                    uniqueCount++;
-                                }
+                                bitSetNegative.set(idx);
                             }
                         }
                         ip = 0;
@@ -67,20 +61,13 @@ public class ByteBasedBitSetCounter implements IPAddressCounter {
             if (octetCount == 3) {
                 ip = (ip << 8) | octet;
                 if (ip >= 0) {
-                    if (!bitSetPositive.get(ip)) {
-                        bitSetPositive.set(ip);
-                        uniqueCount++;
-                    }
+                    bitSetPositive.set(ip);
                 } else {
-                    int idx = ip ^ 0xFFFFFFFF;
-                    if (!bitSetNegative.get(idx)) {
-                        bitSetNegative.set(idx);
-                        uniqueCount++;
-                    }
+                    bitSetNegative.set(ip ^ 0xFFFFFFFF);
                 }
             }
         }
 
-        return uniqueCount;
+        return bitSetPositive.cardinality() + bitSetNegative.cardinality();
     }
 }

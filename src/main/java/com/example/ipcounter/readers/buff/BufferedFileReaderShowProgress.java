@@ -1,4 +1,4 @@
-package com.example.ipcounter.util;
+package com.example.ipcounter.readers.buff;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;

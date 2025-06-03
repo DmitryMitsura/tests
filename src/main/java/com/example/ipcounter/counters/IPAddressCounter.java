@@ -1,4 +1,4 @@
-package com.example.ipcounter;
+package com.example.ipcounter.counters;
 
 import java.nio.file.Path;
 import java.io.IOException;

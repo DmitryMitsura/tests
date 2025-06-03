@@ -1,5 +1,10 @@
 package com.example.ipcounter;
 
+import com.example.ipcounter.counters.bitset.ByteBasedBitSetCounter;
+import com.example.ipcounter.counters.memory.ByteBasedMemoryCounter;
+import com.example.ipcounter.counters.IPAddressCounter;
+import com.example.ipcounter.counters.bitset.LineBasedBitSetCounter;
+import com.example.ipcounter.counters.parallel.ParallelIPCounter;
 import com.example.ipcounter.util.TimeUtils;
 
 import java.io.IOException;
@@ -48,27 +53,29 @@ public class Main {
         try {
             System.out.println("Algorithm: " + algorithm + ". Buffer size in Mb " + bufferSizeBytes);
 
-            IPAddressCounter counter = switch (algorithm) {
-                case "linebitset" -> new LineBasedBitSetCounter();
-                case "bytebitset" -> new ByteBasedBitSetCounter();
-                case "bytememory" -> new ByteBasedMemoryCounter();
-                default -> throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
-            };
-
+            long uniqueCount;
             Instant start = Instant.now();
             System.out.println("Processing started at: " + start);
 
-            long uniqueCount = counter.countUnique(filePath);
+            if ("parallel".equalsIgnoreCase(algorithm)) {
+                uniqueCount = ParallelIPCounter.countUniqueIPs(filePath);
+            } else {
+                IPAddressCounter counter = switch (algorithm) {
+                    case "linebitset" -> new LineBasedBitSetCounter();
+                    case "bytebitset" -> new ByteBasedBitSetCounter();
+                    case "bytememory" -> new ByteBasedMemoryCounter();
+                    default -> throw new IllegalArgumentException("Unknown algorithm: " + algorithm);
+                };
+                uniqueCount = counter.countUnique(filePath);
+            }
 
             Instant end = Instant.now();
             System.out.println("Processing ended at: " + end);
-
             Duration duration = Duration.between(start, end);
             System.out.println("Total time: " + TimeUtils.formatDuration(duration));
-
             System.out.println("Unique IP count: " + uniqueCount);
-            System.out.flush();
 
+            System.out.flush();
             System.err.flush();
             System.exit(0);
 

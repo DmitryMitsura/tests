@@ -1,4 +1,4 @@
-package com.example.ipcounter.util;
+package com.example.ipcounter.readers.line;
 
 import java.io.BufferedReader;
 import java.io.IOException;

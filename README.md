@@ -26,7 +26,7 @@ The application offers three different algorithms for counting unique IP address
 # Configuration Options
 The program allows customization of several runtime parameters via the configuration file (`config.properties`) or command-line arguments:
 - `buffer.size.mb`: Size of the byte buffer in megabytes for reading the file.
-- `algorithm`: Choose between `linebit`, `bytebitset`, and `bytememory`.
+- `algorithm`: Choose between `linebitset`, `bytebitset`, and `bytememory`.
 - `filePath`: Specify the input file path.
 
 # Usage Instructions
