@@ -23,10 +23,21 @@ The application offers three different algorithms for counting unique IP address
   - 16MB: ~7m 43s
   - 32MB: ~7m 41s
 
+## Parallel LineReader with BitSet
+The `parallel` algorithm implements a two-phase processing model:
+1. **DataReader** (single thread) reads the file line by line and pushes each line into a `BlockingQueue`.
+2. **IPConverter** workers (multiple threads) consume the queue in parallel, parse valid IPv4 addresses, and mark them in two `BitSet` structures (for positive and negative integer representations).
+
+**Key characteristics:**
+- Synchronization is applied separately to the two `BitSet` instances to avoid collisions.
+- Worker threads terminate automatically if the queue remains empty for a defined timeout (`2 seconds`).
+- The number of processing threads is limited to `availableProcessors() - 1` to leave one core for the reader thread.
+- Average time on 106 GB file: ~14 minutes
+
 # Configuration Options
 The program allows customization of several runtime parameters via the configuration file (`config.properties`) or command-line arguments:
 - `buffer.size.mb`: Size of the byte buffer in megabytes for reading the file.
-- `algorithm`: Choose between `linebitset`, `bytebitset`, and `bytememory`.
+- `algorithm`: Choose between `linebitset`, `bytebitset`, `bytememory` and `parallel`.
 - `filePath`: Specify the input file path.
 
 # Usage Instructions

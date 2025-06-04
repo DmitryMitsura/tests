@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 
 public class ParallelIPCounter {
 
-    private static final int QUEUE_CAPACITY = 10000;
+    private static final int QUEUE_CAPACITY = 10_000;
     private static final int THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final int BITSET_SIZE = Integer.MAX_VALUE;
 
@@ -16,7 +16,8 @@ public class ParallelIPCounter {
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
         BitSet bitSetPositive = new BitSet(BITSET_SIZE);
         BitSet bitSetNegative = new BitSet(BITSET_SIZE);
-        Object lock = new Object();
+        Object lockPositive = new Object();
+        Object lockNegative = new Object();
 
         ExecutorService readerExecutor = Executors.newSingleThreadExecutor();
         ExecutorService workerExecutor = Executors.newFixedThreadPool(THREADS);
@@ -28,8 +29,11 @@ public class ParallelIPCounter {
             for (int i = 0; i < THREADS; i++) {
                 final int threadId = i;
                 workerExecutor.submit(() -> {
-                    new IPConverter(queue, bitSetPositive, bitSetNegative, lock, threadId, THREADS).run();
-                    latch.countDown();
+                    try {
+                        new IPConverter(queue, bitSetPositive, bitSetNegative, lockPositive, lockNegative, threadId).run();
+                    } finally {
+                        latch.countDown();
+                    }
                 });
             }
 
@@ -38,6 +42,8 @@ public class ParallelIPCounter {
         } finally {
             readerExecutor.shutdown();
             workerExecutor.shutdown();
+            readerExecutor.awaitTermination(1, TimeUnit.SECONDS);
+            workerExecutor.awaitTermination(1, TimeUnit.SECONDS);
         }
 
         return (long) bitSetPositive.cardinality() + bitSetNegative.cardinality();
